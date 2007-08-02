@@ -17,7 +17,7 @@
 #include <iterator>
 #include <boost/program_options.hpp>
 
-namespace boost { namspace cli {
+namespace boost { namespace cli {
 
 typedef boost::program_options::options_description commands_description;
 
@@ -56,7 +56,7 @@ public:
   
 
 private:
-  const options_description* m_desc;
+  const commands_description* m_desc;
 };
 
 } // !namespace cli
