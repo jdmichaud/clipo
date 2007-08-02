@@ -56,7 +56,7 @@ public:
           vm);
         boost::program_options::notify(vm);
       }
-      catch (std::exception& e) 
+      catch (boost::program_options::unknown_option& e) 
       {
         std::cerr << "error: " << e.what() << std::endl;
       }
