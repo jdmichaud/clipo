@@ -36,6 +36,6 @@ int main(int argc, char **argv)
     ("exit", po::value< unsigned int >()->notifier(&exit_))
     ;
 
-  boost::cli::command_line_interpreter cli(desc);
+  boost::cli::command_line_interpreter cli(desc, ">");
   cli.interpret(std::cin);
 }
