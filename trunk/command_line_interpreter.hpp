@@ -26,12 +26,21 @@ class command_line_interpreter
 public:
   command_line_interpreter(const commands_description& desc)
   {
-    m_desc = &desc;  
+    m_desc = &desc;
+  }
+
+  command_line_interpreter(const commands_description& desc, 
+                           const std::string &prompt)
+  {
+    m_desc = &desc;
+    m_prompt = prompt;
   }
 
   void interpret(std::istream &input_stream)
   {
     std::string command;
+    std::cout << m_prompt << std::flush;
+
     while (std::getline(input_stream, command, '\n'))
     {
       std::vector<std::string> args;
@@ -51,12 +60,15 @@ public:
       {
         std::cerr << "error: " << e.what() << std::endl;
       }
+
+      std::cout << m_prompt << std::flush;
     }
   }
   
 
 private:
   const commands_description* m_desc;
+  std::string                 m_prompt;
 };
 
 } // !namespace cli
