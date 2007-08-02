@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				RegisterOutput="true"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;D:\Program Files\boost-cvs\boost\stage\lib&quot;"
 				GenerateDebugInformation="true"
