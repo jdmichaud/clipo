@@ -21,6 +21,84 @@ namespace boost { namespace cli {
 
 typedef boost::program_options::options_description commands_description;
 
+/*
+ * Unshamefully copied from the split_winmain function developed by Vladimir Prus 
+ */ 
+std::vector<std::string> split_command_line(const std::string& input)
+{
+  std::vector<std::string> result;
+
+  std::string::const_iterator i = input.begin(), e = input.end();
+  for(;i != e; ++i)
+    if (!isspace((unsigned char)*i))
+      break;
+ 
+  if (i != e) 
+  {
+    std::string current;
+    bool inside_quoted = false;
+    int backslash_count = 0;
+    
+    for(; i != e; ++i) 
+    {
+      if (*i == '"') 
+      {
+        // '"' preceded by even number (n) of backslashes generates
+        // n/2 backslashes and is a quoted block delimiter
+        if (backslash_count % 2 == 0) 
+        {
+          current.append(backslash_count / 2, '\\');
+          inside_quoted = !inside_quoted;
+          // '"' preceded by odd number (n) of backslashes generates
+          // (n-1)/2 backslashes and is literal quote.
+        } 
+        else 
+        {
+          current.append(backslash_count / 2, '\\');                
+          current += '"';                
+        }
+        backslash_count = 0;
+      } 
+      else if (*i == '\\') 
+      {
+        ++backslash_count;
+      } else 
+      {
+        // Not quote or backslash. All accumulated backslashes should be
+        // added
+        if (backslash_count) 
+        {
+          current.append(backslash_count, '\\');
+          backslash_count = 0;
+        }
+        if (isspace((unsigned char)*i) && !inside_quoted) 
+        {
+          // Space outside quoted section terminate the current argument
+          result.push_back(current);
+          current.resize(0);
+          for(;i != e && isspace((unsigned char)*i); ++i)
+            ;
+          --i;
+        } 
+        else 
+        {                  
+          current += *i;
+        }
+      }
+    }
+
+    // If we have trailing backslashes, add them
+    if (backslash_count)
+      current.append(backslash_count, '\\');
+
+    // If we have non-empty 'current' or we're still in quoted
+    // section (even if 'current' is empty), add the last token.
+    if (!current.empty() || inside_quoted)
+      result.push_back(current);        
+  }
+  return result;
+}
+
 class command_line_interpreter
 {
 public:
@@ -46,7 +124,7 @@ public:
       std::vector<std::string> args;
       
       // huu, ugly...
-      args = boost::program_options::split_winmain(std::string("--") + command); 
+      args = split_command_line(std::string("--") + command); 
       
       try
       {
@@ -56,7 +134,11 @@ public:
           vm);
         boost::program_options::notify(vm);
       }
-      catch (boost::program_options::unknown_option& e) 
+      catch (boost::program_options::unknown_option &e) 
+      {
+        std::cerr << "error: " << e.what() << std::endl;
+      }
+      catch (boost::program_options::invalid_command_line_syntax &e)
       {
         std::cerr << "error: " << e.what() << std::endl;
       }
