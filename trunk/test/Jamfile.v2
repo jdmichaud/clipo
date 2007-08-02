@@ -1,0 +1,17 @@
+# Boost CLI Library Build Jamfile
+
+# (C) Copyright Jean-Daniel Michaud 2007
+
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or www.boost.org/LICENSE_1_0.txt)
+
+# See library home page at http://www.boost.org/libs/logging
+
+project
+    : requirements <linkflags>/LIBPATH:\"$(BOOST_ROOT)/stage/lib\" <linkflags>libboost_program_options-vc80-mt-gd.lib
+;
+
+exe basic_test 
+ : basic_test.cpp
+ : <include>../../../boost/ <include>$(BOOST_ROOT) 
+ ;
