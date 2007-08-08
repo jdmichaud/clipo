@@ -24,7 +24,7 @@ typedef boost::program_options::options_description commands_description;
 /*
  * Unshamefully copied from the split_winmain function developed by Vladimir Prus 
  */ 
-std::vector<std::string> split_command_line(const std::string& input)
+static std::vector<std::string> split_command_line(const std::string& input)
 {
   std::vector<std::string> result;
 
@@ -139,6 +139,10 @@ public:
         std::cerr << "error: " << e.what() << std::endl;
       }
       catch (boost::program_options::invalid_command_line_syntax &e)
+      {
+        std::cerr << "error: " << e.what() << std::endl;
+      }
+      catch (boost::program_options::validation_error &e)
       {
         std::cerr << "error: " << e.what() << std::endl;
       }
