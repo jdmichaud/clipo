@@ -5,8 +5,8 @@
 //  appears in all copies. This software is provided "as is" without express or 
 //  implied warranty, and with no claim as to its suitability for any purpose.
 
-//  See http://www.boost.org for updates, documentation, and revision history.
-//  See http://www.boost.org/libs/clipo/ for library home page.
+//  See http://www.boost.org/LICENSE_1_0.txt for licensing.
+//  See http://code.google.com/p/clipo/ for library home page.
 
 #ifndef BOOST_COMMAND_LINE_INTERPRETER
 #define BOOST_COMMAND_LINE_INTERPRETER
