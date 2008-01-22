@@ -15,6 +15,7 @@
 #include <string>
 #include <iostream>
 #include <iterator>
+#include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 
 namespace boost { namespace cli {
@@ -114,6 +115,35 @@ public:
     m_prompt = prompt;
   }
 
+  void handle_read_line(std::string line)
+  {
+    std::vector<std::string> args;
+    
+    // huu, ugly...
+    args = split_command_line(std::string("--") + line); 
+    
+    try
+    {
+      boost::program_options::variables_map vm;
+      boost::program_options::store(
+        boost::program_options::command_line_parser(args).options(*m_desc).run(), 
+        vm);
+      boost::program_options::notify(vm);
+    }
+    catch (boost::program_options::unknown_option &e) 
+    {
+      std::cerr << "error: " << e.what() << std::endl;
+    }
+    catch (boost::program_options::invalid_command_line_syntax &e)
+    {
+      std::cerr << "error: " << e.what() << std::endl;
+    }
+    catch (boost::program_options::validation_error &e)
+    {
+      std::cerr << "error: " << e.what() << std::endl;
+    }
+  }
+
   void interpret(std::istream &input_stream)
   {
     std::string command;
@@ -121,33 +151,26 @@ public:
 
     while (std::getline(input_stream, command, '\n'))
     {
-      std::vector<std::string> args;
-      
-      // huu, ugly...
-      args = split_command_line(std::string("--") + command); 
-      
-      try
-      {
-        boost::program_options::variables_map vm;
-        boost::program_options::store(
-          boost::program_options::command_line_parser(args).options(*m_desc).run(), 
-          vm);
-        boost::program_options::notify(vm);
-      }
-      catch (boost::program_options::unknown_option &e) 
-      {
-        std::cerr << "error: " << e.what() << std::endl;
-      }
-      catch (boost::program_options::invalid_command_line_syntax &e)
-      {
-        std::cerr << "error: " << e.what() << std::endl;
-      }
-      catch (boost::program_options::validation_error &e)
-      {
-        std::cerr << "error: " << e.what() << std::endl;
-      }
-
+      handle_read_line(command);
       std::cout << m_prompt << std::flush;
+    }
+  }
+
+  typedef char *(*realine_function_pointer_t)(const char *);
+
+  void interpret_(std::istream &input_stream, 
+                  realine_function_pointer_t f)
+  {
+    char        *line = NULL;
+
+    while (line = boost::bind(f, m_prompt.c_str())())
+    {
+      if (!line)
+        continue ;
+        
+      std::string command = line;
+      free(line);
+      handle_read_line(command);
     }
   }
   

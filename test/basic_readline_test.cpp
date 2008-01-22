@@ -13,6 +13,8 @@
 #include <iostream>
 #include <command_line_interpreter.hpp>
 
+#include <editline/readline.h>
+
 namespace po = boost::program_options;
 
 void handler(const std::vector<std::string> &parameters)
@@ -23,9 +25,9 @@ void handler(const std::vector<std::string> &parameters)
     std::cout << *it << std::endl;
 }
 
-void exit_(const std::vector<std::string> &)
+void exit_(unsigned int code = 0)
 {
-  exit(0);
+  exit(code);
 }
 
 int main(int argc, char **argv)
@@ -33,9 +35,9 @@ int main(int argc, char **argv)
   boost::cli::commands_description desc;
   desc.add_options()
     ("handler", po::value< std::vector<std::string> >()->notifier(&handler)->multitoken())
-    ("exit", po::value< std::vector<std::string> >()->zero_tokens()->notifier(boost::bind(&exit_, _1)))
+    ("exit", po::value< unsigned int >()->notifier(&exit_))
     ;
 
   boost::cli::command_line_interpreter cli(desc, ">");
-  cli.interpret(std::cin);
+  cli.interpret_(std::cin, &readline);
 }
